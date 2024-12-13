@@ -8,31 +8,15 @@ import org.example.doctorai.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 
 @Service
 @RequiredArgsConstructor
-public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
-
-    /**
-     * Загрузка нового локального пользователя
-     *
-     * @param email
-     * @return {@link UserDetails}
-     * @throws UsernameNotFoundException
-     */
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String email, String login) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
-
-        return new CustomUserDetails(user);
-    }
 
     /**
      * Постоянная сущность пользователя

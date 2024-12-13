@@ -25,7 +25,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
 
 
@@ -69,7 +69,7 @@ public class AuthService {
             );
             authenticationManager.authenticate(authentication);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userRequestAuthorization.getLogin());
+            UserDetails userDetails = userService.loadUserByUsername(userRequestAuthorization.getLogin());
             return jwtService.generateToken(userDetails.getUsername(), userDetails.getPassword());
         } catch (AuthenticationException e) {
             throw new JwtException("Не удалось авторизоваться");
