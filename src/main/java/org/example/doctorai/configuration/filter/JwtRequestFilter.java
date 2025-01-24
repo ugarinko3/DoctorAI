@@ -1,9 +1,9 @@
-package org.example.doctorai.service.filter;
+package org.example.doctorai.configuration.filter;
 
-import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
 
 import lombok.RequiredArgsConstructor;
 import org.example.doctorai.service.CustomUserDetailsService;
@@ -12,13 +12,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Service;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@Service
 public class JwtRequestFilter extends OncePerRequestFilter {
 
     private final CustomUserDetailsService customUserDetailsService;
@@ -30,11 +28,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
      * Метод для парсинга токена авторизации при запросе
      *
      * @param request     Запрос с данными фильтрации
-     * @param response    ответ после фильтрации
-     * @param filterChain цепочка фильтров
+     * @param response    Ответ после фильтрации
+     * @param filterChain Цепочка фильтров
      */
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+            throws IOException, jakarta.servlet.ServletException {
         String authorizationHeader = request.getHeader(HEADER_NAME);
 
         String jwt = null;

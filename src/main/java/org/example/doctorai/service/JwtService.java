@@ -5,8 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.AllArgsConstructor;
-import org.example.doctorai.model.request.UserRequestAuthorization;
-import org.example.doctorai.model.request.UserRequestRegistration;
+import org.example.doctorai.model.request.UserRequest;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -20,87 +19,61 @@ public class JwtService {
 
     private SecretKey secret;
 
-
     public JwtService() {
         byte[] keyBytes = "2f73bb18fdf365a62cad45d8841f135dcbd6fbb1dcf5311b6240d96cde65f764".getBytes(StandardCharsets.UTF_8);
         this.secret = new SecretKeySpec(keyBytes, 0, keyBytes.length, "HmacSHA256");
     }
 
-    public UserRequestRegistration getLoginAndEmailAndPassword(String token) {
-        Claims claims = getClaimsFromToken(token);
-
-        UserRequestRegistration user = new UserRequestRegistration();
-        user.setEmail(claims.get("email", String.class));
-        user.setLogin(claims.get("login", String.class));
-        user.setPassword(claims.get("password", String.class));
-        return user;
-    }
-
-    public UserRequestAuthorization getLoginAndPassword(String token) {
-        Claims claims = getClaimsFromToken(token);
-
-        UserRequestAuthorization user = new UserRequestAuthorization();
-        user.setLogin(claims.get("login", String.class));
-        user.setPassword(claims.get("password", String.class));
-        return user;
-    }
-
-    /**
-     * Генерация токена
-     *
-     * @param login Логин пользователя
-     * @param password Пароль пользователя
-     * @return JWT
-     */
-    public String generateToken(String login, String password) {
+    public String generateToken(String email, String password, String login) {
+        long expirationTime = 3600000; // 1 час
         return Jwts.builder()
-                .setSubject(login)
-                .claim("login", login)
+                .setSubject(email)
+                .claim("email", email)
                 .claim("password", password)
+                .claim("login", login)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 3600000))  // Токен истекает через 1 час
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
     }
 
-
-    private Claims getClaimsFromToken(String token) {
-        return Jwts.parser()
+    public UserRequest getEmailAndPassword(String token) {
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(secret)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
+
+        String email = claims.get("email", String.class);
+        String password = claims.get("password", String.class);
+        String login = claims.get("login", String.class);
+
+        UserRequest userRequest = new UserRequest();
+        userRequest.setEmail(email);
+        userRequest.setPassword(password);
+        userRequest.setLogin(login);
+        return userRequest;
     }
 
-    /**
-     * Получение почты с токена
-     *
-     * @param token
-     * @return
-     */
     public String extractEmail(String token) {
-        return Jwts.parser()
+        return Jwts.parserBuilder()
                 .setSigningKey(secret)
+                .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
 
-    /**
-     * Проверка на валидацию токена
-     *
-     * @param token
-     * @return
-     */
     public boolean isTokenValid(String token) {
         try {
-            Jwts.parser()
+            Jwts.parserBuilder()
                     .setSigningKey(secret)
+                    .build()
                     .parseClaimsJws(token);
-
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            System.err.println("JWT token is invalid: " + e.getMessage());
             return false;
         }
     }
-
 }

@@ -26,6 +26,10 @@ public class AuthController {
     public ResponseEntity<UUID> register(@RequestHeader(value = "token") String token) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(token));
     }
+    @RequestMapping("/")
+    public String home() {
+        return "forward:/swagger-ui/index.html";
+    }
 
     @Operation(summary = "Авторизация")
     @PostMapping("/authorization")
@@ -34,3 +38,4 @@ public class AuthController {
     }
 
 }
+

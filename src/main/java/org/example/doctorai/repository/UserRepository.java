@@ -7,9 +7,17 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Репозиторий для работы с сущностью {@link User}
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    Optional<User> findByLogin(String login);
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findById(UUID id);
+
     boolean existsByEmail(String email);
-    boolean existsByLogin(String login);
+
+    boolean existsById(UUID id);
+
 }
